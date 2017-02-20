@@ -30,3 +30,4 @@ gcc version : 4.2.1
 
 ----
 C++版も開発予定
+https://github.com/kohga/DummyFileSystem_Obj
