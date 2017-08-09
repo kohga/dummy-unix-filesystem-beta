@@ -3,7 +3,6 @@
 #include <string.h>
 
 #define FILE_NAME "./TestBlockDevice"
-
 /* modes */
 #define IALLOC	0100000
 #define IFMT	060000
@@ -17,14 +16,12 @@
 #define IREAD	0400
 #define IWRITE	0200
 #define IEXEC	0100
-
 #define IREAD_USR	040
 #define IWRITE_USR	020
 #define IEXEC_USR	010
 #define IREAD_STA	04
 #define IWRITE_STA	02
 #define IEXEC_STA	01
-
 
 /* 512byte */
 struct filsys{
@@ -42,9 +39,7 @@ struct filsys{
 	int pad[50];
 }*super;
 
-
 struct inode{
-
 	/* 32byte */
 	int i_mode;
 	char i_nlink;
@@ -55,10 +50,8 @@ struct inode{
 	int i_addr[8];
 	int i_atime[2];
 	int i_mtime[2];
-
 	unsigned char *strage[8];
 }*inodes;
-
 
 struct dir_file{
 	int i_num;
@@ -67,9 +60,7 @@ struct dir_file{
 	struct dir_file *df_child[256];
 }*cur;
 
-
 unsigned char *boot;
-
 static void print_bin(int value){
 	unsigned int bit = (1 << (sizeof(int) * 8 - 1));
 		for ( ; bit != 0 ; bit >>= 1 ){
@@ -81,24 +72,18 @@ static void print_bin(int value){
 	printf("\n");
 }
 
-static int get_16bit_big(unsigned char *mem)
-{
+static int get_16bit_big(unsigned char *mem){
 	int ret=0,i;
-
 	for(i=0;i<2;i++)
 		ret = ret*(16*16) + (int)mem[i];
-
 	return ret;
 }
 
-static int get_16bit_lit(unsigned char *mem)
-{
+static int get_16bit_lit(unsigned char *mem){
 	int ret=0,lit[2],i;
 
 	for(i=0;i<2;i++)
 		lit[i] = (int)mem[i];
-
-	//for(i=0;i<2;i++)
 	for(i=1;i>=0;i--)
 		ret = ret*(16*16)+lit[i];
 
@@ -106,14 +91,11 @@ static int get_16bit_lit(unsigned char *mem)
 }
 
 static int inode_num=0;
-static void get_inode_block (unsigned char *block)
-{
+static void get_inode_block (unsigned char *block){
 	struct inode *inode_block;
 	int i,j;
-
 	for (j=0;j<16;j++){
 		inode_block = malloc(sizeof(struct inode));
-		
 		inode_block->i_mode = get_16bit_lit(block);
 		block+=2;
 		inode_block->i_nlink = *block;
@@ -143,11 +125,9 @@ static void get_inode_block (unsigned char *block)
 	}
 }
 
-static void get_super (unsigned char *block)
-{
+static void get_super (unsigned char *block){
 	int i;
 	super = malloc(sizeof(struct filsys));
-
 	super->s_isize = get_16bit_lit(block);
 	block+=2;
 	super->s_fsize = get_16bit_lit(block);
@@ -182,25 +162,21 @@ static void get_super (unsigned char *block)
 	}
 }
 
-static void exit_filer (void)
-{
+static void exit_filer (void){
 	free(boot);
 	free(super);
 	free(inodes);
 }
 
-static void check_drxw(int i_num, int flag, char c)
-{
+static void check_drxw(int i_num, int flag, char c){
 	if(inodes[i_num].i_mode & flag)
 		printf("%c",c);
 	else
 		printf("-");
 }
 
-static void init_child (void)
-{
+static void init_child (void){
 	int i;
-
 	if(!cur)
 		return;
 
@@ -210,8 +186,7 @@ static void init_child (void)
 	}
 }
 
-static void cd_cur (int i_num)
-{
+static void cd_cur (int i_num){
 	int i,j,k,l;
 	struct dir_file *child;
 	free(cur);
@@ -234,8 +209,7 @@ static void cd_cur (int i_num)
 	}
 }
 
-static void cat_data (int i_num)
-{
+static void cat_data (int i_num){
 	int i,j;
 	for(j=0;j<8;j++){
 		if(inodes[i_num].i_addr[j]){
@@ -246,8 +220,7 @@ static void cat_data (int i_num)
 	printf("\n");
 }
 
-static void operation_dev (char *file_name)
-{
+static void operation_dev (char *file_name){
 	FILE *fp;
 	unsigned char *block_super = malloc(512);
 	unsigned char *block_inode = malloc(512);
